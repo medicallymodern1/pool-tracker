@@ -90,7 +90,7 @@ button,select{font:inherit;color:var(--ink)}
 .t2 button small{font-size:10px;font-weight:700;margin-right:1px;opacity:.7}
 .t2 button.on.n{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .t2 button.on.g{background:var(--good);border-color:var(--good);color:#fff}.t2 button.on.r{background:var(--bad);border-color:var(--bad);color:#fff}
-.scb{display:flex;align-items:center;gap:8px;height:32px;background:var(--line);color:var(--ink);padding:0 14px;font-size:12px;font-weight:700;position:sticky;top:calc(48px + env(safe-area-inset-top,0px));z-index:4;transition:background .15s}
+.scb{display:flex;align-items:center;gap:8px;height:32px;background:linear-gradient(var(--line),var(--line)),var(--bg);color:var(--ink);padding:0 14px;font-size:12px;font-weight:700;position:sticky;top:calc(48px + env(safe-area-inset-top,0px));z-index:4;transition:background .15s}
 .scb.show{background:var(--acc);color:#fff}.scb .up{color:var(--good)}.scb .dn{color:var(--bad)}.scb:not(.show) button{display:none}.scb span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scb button{border:none;background:rgba(255,255,255,.2);color:#fff;font-weight:800;font-size:12px;border-radius:7px;padding:3px 10px;cursor:pointer}
 .cell.alt{color:var(--line2);font-weight:600}
 .tie{display:none;font-size:11px;font-weight:800;border-radius:8px;padding:1px 7px;background:var(--warnbg,#fdf0d5);color:var(--warn,#8a5a00);margin-left:4px}
