@@ -91,7 +91,7 @@ button,select{font:inherit;color:var(--ink)}
 .t2 button.on.n{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .t2 button.on.g{background:var(--good);border-color:var(--good);color:#fff}.t2 button.on.r{background:var(--bad);border-color:var(--bad);color:#fff}
 .scb{display:flex;align-items:center;gap:8px;height:32px;background:var(--line);color:var(--ink);padding:0 14px;font-size:12px;font-weight:700;position:sticky;top:calc(48px + env(safe-area-inset-top,0px));z-index:4;transition:background .15s}
-.scb.show{background:var(--acc);color:#fff}.scb:not(.show) button{visibility:hidden}.scb span{flex:1}.scb button{border:none;background:rgba(255,255,255,.2);color:#fff;font-weight:800;font-size:12px;border-radius:7px;padding:3px 10px;cursor:pointer}
+.scb.show{background:var(--acc);color:#fff}.scb:not(.show) button{visibility:hidden}.scb span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scb button{border:none;background:rgba(255,255,255,.2);color:#fff;font-weight:800;font-size:12px;border-radius:7px;padding:3px 10px;cursor:pointer}
 .cell.alt{color:var(--line2);font-weight:600}
 .tie{display:none;font-size:11px;font-weight:800;border-radius:8px;padding:1px 7px;background:var(--warnbg,#fdf0d5);color:var(--warn,#8a5a00);margin-left:4px}
 .pw{display:flex;align-items:center;justify-content:center}
@@ -221,10 +221,13 @@ function render(){
   document.getElementById('hltxt').textContent=(base>0.005&&ti>=0.005&&ti<base-0.005)?'win or tie':'chance to win or tie the week';}document.getElementById('es').textContent=R.S.toFixed(1);document.getElementById('wexp').textContent=R.MX.toFixed(1);{lastWS=R.ws;const wk=R.ws.indexOf(Math.max(...R.ws));document.getElementById('wname').textContent=(wk===me?'You':nice(D.e[wk].n))+' '+pct(R.ws[wk]);}
  const now=D.e.map((e,k)=>{let t=0;D.g.forEach((g,i)=>{let fc;if(g.s==='post')fc=(g.fs-g.ds)>g.l;else if(set[i])fc=set[i]===1;else return;t+=fc?PF[k*G+i]:PD[k*G+i]});return t});
  const wins=D.e.map((e,k)=>{let w=0;D.g.forEach((g,i)=>{let fc;if(g.s==='post')fc=(g.fs-g.ds)>g.l;else if(set[i])fc=set[i]===1;else return;if(fc?PF[k*G+i]:PD[k*G+i])w++});return w});
- const em=D.e[me],seasonPts=em.off!=null?(em.tot!=null?em.tot:em.prev+em.off):em.prev+now[me],seasonWon=em.off!=null?em.won:em.won+wins[me];
+ const sPts=D.e.map((e,k)=>e.off!=null?(e.tot!=null?e.tot:e.prev+e.off):e.prev+now[k]),sWon=D.e.map((e,k)=>e.off!=null?e.won:e.won+wins[k]);
+ const ord=n=>n+(n%100>10&&n%100<14?'th':['th','st','nd','rd'][n%10]||'th');
+ const standing=a=>{const v=a[me],r=1+a.filter(x=>x>v).length,tie=a.filter(x=>x===v).length>1,gap=Math.max(...a)-v;return '('+(tie?'T':'')+ord(r)+(gap?' −'+gap:'')+')'};
+ const seasonPts=sPts[me],seasonWon=sWon[me];
  const scn=set.some(x=>x);document.getElementById('scb').classList.toggle('show',scn);
  document.getElementById('l1').textContent=scn?'Points in scenario':'Points now';document.getElementById('l3').textContent=scn?'Leader in scenario':'Leader now';
- document.getElementById('scbt').textContent=scn?'Scenario planning · '+set.filter(x=>x).length+' game'+(set.filter(x=>x).length>1?'s':'')+' set':'Season: '+seasonPts+' pts · '+seasonWon+' game'+(seasonWon===1?'':'s')+' won';
+ document.getElementById('scbt').textContent=scn?'Scenario planning · '+set.filter(x=>x).length+' game'+(set.filter(x=>x).length>1?'s':'')+' set':'Season: '+seasonPts+' pts '+standing(sPts)+' · '+seasonWon+' game'+(seasonWon===1?'':'s')+' won '+standing(sWon);
  
  lastNow=now;const lv=Math.max(...now),lk=now.map((v,k)=>v===lv?k:-1).filter(k=>k>=0);
  document.getElementById('pnow').textContent=now[me];document.getElementById('lnow').textContent=lv;
