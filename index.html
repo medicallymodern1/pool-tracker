@@ -28,7 +28,7 @@ button,select{font:inherit;color:var(--ink)}
 .sh-list{overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sh-row{min-height:46px;border-bottom:1px solid var(--line);cursor:pointer;width:100%;background:none;border-left:none;border-right:none;border-top:none;text-align:left;font:inherit;color:var(--ink)}
 .sh-row.me{background:var(--accbg)}.sh-row .rk{font-size:12px;color:var(--sub)}
-.sh-row .nm2{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-row .nm2{font-size:14px;font-weight:700;display:flex;align-items:baseline;gap:4px;min-width:0}.nm2 .nx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nm2 small{flex-shrink:0;font-size:12px;font-weight:600;color:var(--sub)}
 .sh-row .pt{font-size:13px;color:var(--sub);text-align:right}
 .sh-row .wp{position:relative;height:24px;border-radius:6px;background:var(--alt);overflow:hidden;text-align:right}
 .sh-row .wp i{position:absolute;left:0;top:0;bottom:0;background:var(--good);opacity:.28}
@@ -207,6 +207,8 @@ function st(g,side){
  return '<span class="live">'+mine+'–'+opp+'</span> '+tm}
 function mix(a,b,f){const A=a.split(',').map(Number),B=b.split(',').map(Number);return 'rgb('+A.map((x,k)=>Math.round(x+(B[k]-x)*f)).join(',')+')'}
 const cs=getComputedStyle(document.documentElement),V=k=>cs.getPropertyValue(k).trim();
+const ord=n=>n+(n%100>10&&n%100<14?'th':['th','st','nd','rd'][n%10]||'th');
+const place=(a,k)=>{const v=a[k];return (a.filter(x=>x===v).length>1?'T':'')+ord(1+a.filter(x=>x>v).length)};
 const rv=x=>x==null?null:Math.round(x*100)/100;
 const gsh=p=>{p=rv(p);return p==null?'transparent':p<=.5?mix(V('--g0'),V('--g1'),p/.5):mix(V('--g1'),V('--g2'),(p-.5)/.5)};
 const dsh=(v,b)=>{if(v==null)return '';const d=rv(v)-rv(b);const f=Math.min(1,Math.abs(d)/0.35);if(Math.abs(d)<0.005)return 'color:var(--ink)';return d>0?'background:'+mix(V('--r0'),V('--g2'),f)+';color:var(--gink)':'background:'+mix(V('--r0'),V('--r1'),f)+';color:var(--rink)'};
@@ -222,8 +224,7 @@ function render(){
  const now=D.e.map((e,k)=>{let t=0;D.g.forEach((g,i)=>{let fc;if(g.s==='post')fc=(g.fs-g.ds)>g.l;else if(set[i])fc=set[i]===1;else return;t+=fc?PF[k*G+i]:PD[k*G+i]});return t});
  const wins=D.e.map((e,k)=>{let w=0;D.g.forEach((g,i)=>{let fc;if(g.s==='post')fc=(g.fs-g.ds)>g.l;else if(set[i])fc=set[i]===1;else return;if(fc?PF[k*G+i]:PD[k*G+i])w++});return w});
  const sPts=D.e.map((e,k)=>e.off!=null?(e.tot!=null?e.tot:e.prev+e.off):e.prev+now[k]),sWon=D.e.map((e,k)=>e.off!=null?e.won:e.won+wins[k]);
- const ord=n=>n+(n%100>10&&n%100<14?'th':['th','st','nd','rd'][n%10]||'th');
- const standing=a=>{const v=a[me],r=1+a.filter(x=>x>v).length,tie=a.filter(x=>x===v).length>1,gap=Math.max(...a)-v;return '('+(tie?'T':'')+ord(r)+(gap?' −'+gap:'')+')'};
+ const standing=a=>{const gap=Math.max(...a)-a[me];return '('+place(a,me)+(gap?' −'+gap:'')+')'};lastSP=sPts;
  const seasonPts=sPts[me],seasonWon=sWon[me];
  const scn=set.some(x=>x);document.getElementById('scb').classList.toggle('show',scn);
  document.getElementById('l1').textContent=scn?'Points in scenario':'Points now';document.getElementById('l3').textContent=scn?'Leader in scenario':'Leader now';
@@ -284,12 +285,12 @@ function render(){
 }
 let saved=null;try{saved=localStorage.getItem('pool_entry')}catch(e){}
 const si=saved?D.e.findIndex(e=>e.n===saved):-1;if(si>=0)me=si;
-let lastWS=null,lastNow=null;
+let lastWS=null,lastNow=null,lastSP=null;
 function openSheet(){const L=document.getElementById('shlist');L.innerHTML='';
  const idx=D.e.map((e,k)=>k).sort((a,b)=>(lastWS[b]-lastWS[a])||(lastNow[b]-lastNow[a])||D.e[a].n.localeCompare(D.e[b].n));
  document.getElementById('shsub').textContent=set.some(x=>x)?'Win chance in your scenario':'Live chance to win the week';
  idx.forEach((k,r)=>{const b=document.createElement('button');b.className='sh-row'+(k===me?' me':'');
-  b.innerHTML='<span class="rk">'+(r+1)+'</span><span class="nm2">'+nice(D.e[k].n)+'</span><span class="pt">'+lastNow[k]+'</span><span class="wp"><i style="width:'+Math.round(lastWS[k]*100)+'%"></i><b>'+pct(lastWS[k])+'</b></span>';
+  b.innerHTML='<span class="rk">'+(r+1)+'</span><span class="nm2"><span class="nx">'+nice(D.e[k].n)+'</span><small>('+place(lastSP,k)+')</small></span><span class="pt">'+lastNow[k]+'</span><span class="wp"><i style="width:'+Math.round(lastWS[k]*100)+'%"></i><b>'+pct(lastWS[k])+'</b></span>';
   b.onclick=()=>{me=k;try{localStorage.setItem('pool_entry',D.e[k].n)}catch(e){}closeSheet();render()};L.appendChild(b)});
  document.getElementById('sheet').classList.add('open');document.body.style.overflow='hidden'}
 function closeSheet(){document.getElementById('sheet').classList.remove('open');document.body.style.overflow=''}
